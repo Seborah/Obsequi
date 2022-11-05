@@ -27,7 +27,7 @@ client.on("interactionCreate", async (interaction) => {
 	switch (commandName) {
 		case "roles":
 			if ((await Server.findOne({ ServerID: interaction.guild.id }))?.selfAssign) {
-				var roles = await Role.find({ serverID: interaction.guild.id })
+				var roles = await Role.find({ serverID: interaction.guild.id, assignable: true })
 				if (roles.length > 0) {
 					var row = new MessageActionRow()
 					var components = []
