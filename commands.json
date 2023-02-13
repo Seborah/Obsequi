@@ -1,0 +1,131 @@
+[
+    {
+        "options": [
+            {
+                "autocomplete": true,
+                "type": 3,
+                "name": "group",
+                "description": "The role group.",
+                "required": false
+            }
+        ],
+        "name": "roles",
+        "description": "Sends Role Message"
+    },
+    {
+        "options": [
+            {
+                "type": 1,
+                "name": "addrole",
+                "description": "Add a role",
+                "options": [
+                    {
+                        "type": 3,
+                        "name": "name",
+                        "description": "The name for the role",
+                        "required": true
+                    }
+                ]
+            },
+            {
+                "type": 1,
+                "name": "delrole",
+                "description": "Delete a role",
+                "options": [
+                    {
+                        "name": "role",
+                        "description": "The role to delete",
+                        "required": true,
+                        "type": 8
+                    }
+                ]
+            },
+            {
+                "type": 1,
+                "name": "configrole",
+                "description": "Configure a role",
+                "options": [
+                    {
+                        "choices": [
+                            {
+                                "name": "assignable",
+                                "value": "assignable"
+                            },
+                            {
+                                "name": "nonassignable",
+                                "value": "nonassignable"
+                            }
+                        ],
+                        "type": 3,
+                        "name": "config",
+                        "description": "config choices",
+                        "required": true
+                    },
+                    {
+                        "name": "role",
+                        "description": "which role to configure",
+                        "required": true,
+                        "type": 8
+                    }
+                ]
+            },
+            {
+                "type": 1,
+                "name": "configgroup",
+                "description": "Configure a group",
+                "options": [
+                    {
+                        "choices": [
+                            {
+                                "name": "addrole",
+                                "value": "addrole"
+                            },
+                            {
+                                "name": "delrole",
+                                "value": "delrole"
+                            }
+                        ],
+                        "type": 3,
+                        "name": "config",
+                        "description": "config choices",
+                        "required": true
+                    },
+                    {
+                        "type": 3,
+                        "name": "group",
+                        "description": "which group to configure",
+                        "required": true
+                    },
+                    {
+                        "name": "role",
+                        "description": "which role to configure",
+                        "required": true,
+                        "type": 8
+                    }
+                ]
+            },
+            {
+                "type": 1,
+                "name": "toggle",
+                "description": "Toggle the self assign roles feature for a group or entirely",
+                "options": [
+                    {
+                        "name": "toggle",
+                        "description": "on or off",
+                        "required": true,
+                        "type": 5
+                    },
+                    {
+                        "type": 3,
+                        "name": "group",
+                        "description": "the role group to disable",
+                        "required": false
+                    }
+                ]
+            }
+        ],
+        "name": "admin",
+        "description": "Administrative Commands",
+        "default_member_permissions": "8"
+    }
+]

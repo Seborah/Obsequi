@@ -66,7 +66,7 @@ const commands = [
         ),
 ].map((command) => command.toJSON())
 
-//require("fs").writeFileSync("./commands.json", JSON.stringify(commands, null, 4))
+require("fs").writeFileSync("./commands.json", JSON.stringify(commands, null, 4))
 
 const rest = new REST({ version: '9' }).setToken(auth.token)
 

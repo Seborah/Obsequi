@@ -30,14 +30,40 @@ client.on('interactionCreate', async (interaction) => {
 
         switch (commandName) {
             case 'roles':
-                var mongoServer = await Server.findOne({ serverID: interaction.guild.id })
-                if (!mongoServer?.selfAssign) {
+                var mongoServer = await Server.findOne({ serverID: interaction.guild.id, selfAssign: true })
+                if (!(await Server.exists({ serverID: interaction.guild.id, selfAssign: true }))) {
                     await interaction.reply({ ephemeral: true, content: "Sorry, but you can't get roles right now." })
                     break
                 }
+                var group = interaction.options.getString('group')
+                if (group) {
+                    var roles = await RoleGroup.findOne({ serverID: interaction.guild.id, groupName: group })
+                    if (!roles.assignable) {
+                        await interaction.reply({ ephemeral: true, content: "Sorry, but you can't get those right now." })
+                        break
+                    }
+                    if (roles.roleIDs.length > 0) {
+                        var row = new MessageActionRow()
+                        var components = []
 
-                if (subcommand) {
-                    var roles = await Role.find({ serverID: interaction.guild.id, assignable: true })
+                        for (var i = 0; i < roles.roleIDs.length; i++) {
+                            if (i > 24) {
+                                break
+                            }
+                            if (i % 5 == 0 && i != 0) {
+                                components.push(row)
+                                row = new MessageActionRow()
+                            }
+                            var discordRole = await interaction.guild.roles.fetch(roles.roleIDs[i])
+                            var button = new MessageButton()
+                            button.setCustomId(discordRole.id)
+                            button.setLabel(discordRole.name)
+                            button.setStyle('PRIMARY')
+                            row.addComponents(button)
+                        }
+                        components.push(row)
+                        await interaction.reply({ ephemeral: true, content: 'Here are the roles you can get:', components: components })
+                    }
                 } else {
                     var roles = await Role.find({ serverID: interaction.guild.id, assignable: true })
                     if (roles.length > 0) {
@@ -228,7 +254,7 @@ client.on('interactionCreate', async (interaction) => {
                             interaction.editReply({ ephemeral: true, content: 'This group does not exist' })
                             break
                         } else {
-                            RoleGroup.updateOne({ serverID: interaction.guild.id, groupName: group }, { toggle: toggle })
+                            await RoleGroup.updateOne({ serverID: interaction.guild.id, groupName: group }, { assignable: toggle })
                             interaction.editReply({ ephemeral: true, content: `Group ${group} is now ${toggle ? 'enabled' : 'disabled'}` })
                         }
                         //TODO: add group toggle
