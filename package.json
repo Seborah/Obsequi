@@ -16,5 +16,12 @@
         "discord-api-types": "^0.33.2",
         "discord.js": "^13.7.0",
         "mongoose": "^6.3.5"
+    },
+    "prettier": {
+        "trailingComma": "es5",
+        "tabWidth": 4,
+        "semi": false,
+        "singleQuote": true,
+        "printWidth": 160
     }
 }
