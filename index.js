@@ -30,18 +30,20 @@ client.on('interactionCreate', async (interaction) => {
 
         switch (commandName) {
             case 'roles':
+                await interaction.reply({ content: 'Working on it...' })
                 var mongoServer = await Server.findOne({ serverID: interaction.guild.id, selfAssign: true })
                 if (!(await Server.exists({ serverID: interaction.guild.id, selfAssign: true }))) {
-                    await interaction.reply({ ephemeral: true, content: "Sorry, but you can't get roles right now." })
+                    await interaction.editReply({ ephemeral: true, content: "Sorry, but you can't get roles right now." })
                     break
                 }
                 var group = interaction.options.getString('group')
                 if (group) {
                     var roles = await RoleGroup.findOne({ serverID: interaction.guild.id, groupName: group })
                     if (!roles.assignable) {
-                        await interaction.reply({ ephemeral: true, content: "Sorry, but you can't get those right now." })
+                        await interaction.editReply({ ephemeral: true, content: "Sorry, but you can't get those right now." })
                         break
                     }
+                    console.log(roles)
                     if (roles.roleIDs.length > 0) {
                         var row = new MessageActionRow()
                         var components = []
@@ -62,7 +64,7 @@ client.on('interactionCreate', async (interaction) => {
                             row.addComponents(button)
                         }
                         components.push(row)
-                        await interaction.reply({ ephemeral: true, content: 'Here are the roles you can get:', components: components })
+                        await interaction.editReply({ ephemeral: true, content: 'Here are the roles you can get:', components: components })
                     }
                 } else {
                     var roles = await Role.find({ serverID: interaction.guild.id, assignable: true })
@@ -85,9 +87,9 @@ client.on('interactionCreate', async (interaction) => {
                             row.addComponents(button)
                         }
                         components.push(row)
-                        await interaction.reply({ ephemeral: true, content: 'Here are the roles you can get:', components: components })
+                        await interaction.editReply({ ephemeral: true, content: 'Here are the roles you can get:', components: components })
                     } else {
-                        await interaction.reply({ ephemeral: true, content: 'There are no roles to assign, maybe check for a role group?' })
+                        await interaction.editReply({ ephemeral: true, content: 'There are no roles to assign, maybe check for a role group?' })
                     }
                 }
 
@@ -148,14 +150,14 @@ client.on('interactionCreate', async (interaction) => {
                         }
                         if (await Role.findOne({ roleID: role.id })) {
                             await Role.findOneAndUpdate({ roleID: role.id }, { assignable: true })
-                            var roleList = new Set(mongoServer.allRolesAdded)
-                            roleList.add(role.id)
-                            await Server.updateOne({ serverID: interaction.guild.id }, { allRolesAdded: [...roleList] })
+                            var groupList = new Set(mongoServer.allRolesAdded)
+                            groupList.add(role.id)
+                            await Server.updateOne({ serverID: interaction.guild.id }, { allRolesAdded: [...groupList] })
                         } else {
                             var mongoRole = new Role({ roleID: role.id, assignable: true, serverID: interaction.guild.id })
-                            var roleList = new Set(mongoServer.allRolesAdded)
-                            roleList.add(role.id)
-                            await Server.updateOne({ serverID: interaction.guild.id }, { allRolesAdded: [...roleList] })
+                            var groupList = new Set(mongoServer.allRolesAdded)
+                            groupList.add(role.id)
+                            await Server.updateOne({ serverID: interaction.guild.id }, { allRolesAdded: [...groupList] })
                             await mongoRole.save()
                         }
                         await interaction.editReply({ ephemeral: false, content: `made ${role.name} ${config}` })
@@ -169,9 +171,9 @@ client.on('interactionCreate', async (interaction) => {
                         }
                         if (await Role.findOne({ roleID: role.id })) {
                             await Role.findOneAndUpdate({ roleID: role.id }, { assignable: false })
-                            var roleList = new Set(mongoServer.allRolesAdded)
-                            roleList.delete(role.id)
-                            await Server.updateOne({ serverID: interaction.guild.id }, { allRolesAdded: [...roleList] })
+                            var groupList = new Set(mongoServer.allRolesAdded)
+                            groupList.delete(role.id)
+                            await Server.updateOne({ serverID: interaction.guild.id }, { allRolesAdded: [...groupList] })
                         }
                         await interaction.editReply({ ephemeral: false, content: `made ${role.name} ${config}` })
                         break
@@ -201,40 +203,43 @@ client.on('interactionCreate', async (interaction) => {
                             await RoleGroup.create({ serverID: interaction.guild.id, groupName: group, roleIDs: [role.id], assignable: false })
                             await interaction.editReply({ ephemeral: false, content: `Added ${role.name} to ${group}` })
                         } else {
-                            var roleGroup = await RoleGroup.findOne({ serverID: interaction.guild.id, groupName: group })
+                            var mongoGroup = await RoleGroup.findOne({ serverID: interaction.guild.id, groupName: group })
 
                             await interaction.editReply({ ephemeral: false, content: `Added ${role.name} to ${group}` })
 
-                            var mongoRole = new Role({ roleID: role.id, assignable: true, serverID: interaction.guild.id })
-                            var roleList = new Set(mongoServer.allRolesAdded)
-                            roleList.add(role.id)
-                            await Server.updateOne({ serverID: interaction.guild.id }, { allRolesAdded: [...roleList] })
+                            var mongoGroup = new Set(mongoGroup.roleIDs)
+                            mongoGroup.add(role.id)
+
+                            await RoleGroup.updateOne({ serverID: interaction.guild.id, groupName: group }, { roleIDs: [...mongoGroup] })
                         }
-                        var mongoRole = new Role({ roleID: role.id, assignable: true, serverID: interaction.guild.id })
-                        var roleList = new Set(mongoServer.allRolesAdded)
-                        roleList.add(role.id)
-                        await Server.updateOne({ serverID: interaction.guild.id }, { allRolesAdded: [...roleList] })
+
+                        var groupList = new Set(mongoServer.allRolesAdded)
+                        groupList.add(role.id)
+                        await Server.updateOne({ serverID: interaction.guild.id }, { allRolesAdded: [...groupList] })
                     } else if (config == 'delrole') {
                         var group = interaction.options.getString('group')
                         if (!(await RoleGroup.exists({ serverID: interaction.guild.id, groupName: group }))) {
                             interaction.editReply({ ephemeral: true, content: 'This group does not exist' })
                         } else {
-                            var roleGroup = await RoleGroup.findOne({ serverID: interaction.guild.id, groupName: group })
-                            var roleList = new Set(roleGroup.roles)
-                            if (!roleList.has(role.id)) {
+                            var mongoGroup = await RoleGroup.findOne({ serverID: interaction.guild.id, groupName: group })
+                            var groupList = new Set(mongoGroup.roleIDs)
+                            if (!groupList.has(role.id)) {
                                 interaction.editReply({ ephemeral: true, content: 'This role is not in this group' })
                                 break
                             }
-                            console.log(roleList)
+                            console.log(groupList)
 
-                            roleList.delete(role.id)
-                            if (roleList.size == 0) {
+                            groupList.delete(role.id)
+                            if (groupList.size == 0) {
                                 await RoleGroup.deleteOne({ serverID: interaction.guild.id, groupName: group })
                                 interaction.editReply({ ephemeral: true, content: 'Group is now empty, deleted' })
                             } else {
-                                await RoleGroup.updateOne({ serverID: interaction.guild.id, groupName: group }, { roleIDs: [...roleList] })
+                                await RoleGroup.updateOne({ serverID: interaction.guild.id, groupName: group }, { roleIDs: [...groupList] })
                                 interaction.editReply({ ephemeral: true, content: `Removed ${role.name} from ${group}` })
                             }
+                            var roleList = new Set(mongoServer.allRolesAdded)
+                            roleList.delete(role.id)
+                            await Server.updateOne({ serverID: interaction.guild.id }, { allRolesAdded: [...roleList] })
                         }
                     }
                 } else if (subcommand == 'toggle') {
@@ -266,27 +271,61 @@ client.on('interactionCreate', async (interaction) => {
 
     if (interaction.isButton()) {
         var msg = interaction.message.content
-        console.log(interaction)
+        await interaction.reply({ ephemeral: true, content: 'working on it..' })
         if (msg.startsWith('Here are the roles')) {
-            if ((await Server.findOne({ serverID: interaction.guild.id })).selfAssign) {
+            if (!(await Server.exists({ serverID: interaction.guild.id, selfAssign: true }))) {
+                interaction.editReply({ ephemeral: true, content: 'Self assignable roles are disabled.' })
+                return
+            }
+            var roles = await RoleGroup.findOne({ serverID: interaction.guild.id, roleIDs: interaction.customId, assignable: true })
+            var memberRoles = interaction.member.roles.cache
+            if (roles) {
+                try {
+                    for (var i = 0; i < roles.roleIDs.length; i++) {
+                        if (memberRoles.has(roles.roleIDs[i])) {
+                            await interaction.member.roles.remove(roles.roleIDs[i])
+                        }
+                    }
+                    await interaction.member.roles.add(interaction.customId)
+                    await interaction.editReply({ ephemeral: true, content: 'Added: ' + interaction.guild.roles.cache.get(interaction.customId).name })
+                } catch (e) {
+                    interaction.editReply({ ephemeral: true, content: "I don't have permission to add this role." })
+                }
+            } else if ((await Role.findOne({ serverID: interaction.guild.id })).assignable) {
                 var discordRole = await interaction.guild.roles.fetch(interaction.customId)
 
                 try {
                     if (interaction.member.roles.cache.has(discordRole.id)) {
                         await interaction.member.roles.remove(discordRole)
-                        await interaction.reply({ ephemeral: true, content: 'Removed: ' + discordRole.name })
+                        await interaction.editReply({ ephemeral: true, content: 'Removed: ' + discordRole.name })
                     } else {
                         await interaction.member.roles.add(discordRole)
-                        await interaction.reply({ ephemeral: true, content: 'Added: ' + discordRole.name })
+                        await interaction.editReply({ ephemeral: true, content: 'Added: ' + discordRole.name })
                     }
                 } catch (e) {
-                    interaction.reply({ ephemeral: true, content: "I don't have permission to add this role." })
+                    interaction.editReply({ ephemeral: true, content: "I don't have permission to add this role." })
 
                     return
                 }
             } else {
-                await interaction.reply({ ephemeral: true, content: "Sorry, but you can't get roles right now." })
+                await interaction.editReply({ ephemeral: true, content: "Sorry, but you can't get roles right now." })
             }
+        }
+    }
+    if (interaction.isAutocomplete()) {
+        console.log(interaction.options.getFocused(true))
+        if (interaction.options.getFocused(true).name == 'group') {
+            var focusedValue = interaction.options.getFocused()
+            
+            var mongoGroups = await RoleGroup.find({ serverID: interaction.guild.id, assignable: true })
+            var choices = []
+            mongoGroups.forEach((group) => {
+                choices.push(group.groupName)
+            })
+            
+            var filtered = focusedValue.length<1 ? choices : choices.filter((choice) => choice.startsWith(focusedValue))
+
+            interaction.respond(filtered.map((choice) => ({ name: choice, value: choice })))
         }
     }
 })
