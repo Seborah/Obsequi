@@ -42,6 +42,32 @@
             },
             {
                 "type": 1,
+                "name": "announceroles",
+                "description": "send a message with buttons to self assign roles to a channel",
+                "options": [
+                    {
+                        "name": "channel",
+                        "description": "The channel to send the message to",
+                        "required": true,
+                        "type": 7
+                    },
+                    {
+                        "autocomplete": true,
+                        "type": 3,
+                        "name": "group",
+                        "description": "The role group.",
+                        "required": true
+                    },
+                    {
+                        "type": 3,
+                        "name": "message",
+                        "description": "The message to send with the buttons",
+                        "required": false
+                    }
+                ]
+            },
+            {
+                "type": 1,
                 "name": "configrole",
                 "description": "Configure a role",
                 "options": [
@@ -70,37 +96,89 @@
                 ]
             },
             {
-                "type": 1,
+                "type": 2,
                 "name": "configgroup",
                 "description": "Configure a group",
                 "options": [
                     {
-                        "choices": [
+                        "type": 1,
+                        "name": "addrole",
+                        "description": "Add a role to a group",
+                        "options": [
                             {
-                                "name": "addrole",
-                                "value": "addrole"
+                                "autocomplete": true,
+                                "type": 3,
+                                "name": "group",
+                                "description": "which group to configure",
+                                "required": true
                             },
                             {
-                                "name": "delrole",
-                                "value": "delrole"
+                                "name": "role",
+                                "description": "which role to configure",
+                                "required": true,
+                                "type": 8
                             }
-                        ],
-                        "type": 3,
-                        "name": "config",
-                        "description": "config choices",
-                        "required": true
+                        ]
                     },
                     {
-                        "type": 3,
-                        "name": "group",
-                        "description": "which group to configure",
-                        "required": true
+                        "type": 1,
+                        "name": "delrole",
+                        "description": "Remove a role from a group",
+                        "options": [
+                            {
+                                "autocomplete": true,
+                                "type": 3,
+                                "name": "group",
+                                "description": "which group to configure",
+                                "required": true
+                            },
+                            {
+                                "name": "role",
+                                "description": "which role to configure",
+                                "required": true,
+                                "type": 8
+                            }
+                        ]
                     },
                     {
-                        "name": "role",
-                        "description": "which role to configure",
-                        "required": true,
-                        "type": 8
+                        "type": 1,
+                        "name": "exclusive",
+                        "description": "Toggle exclusive roles for a group",
+                        "options": [
+                            {
+                                "autocomplete": true,
+                                "type": 3,
+                                "name": "group",
+                                "description": "which group to configure",
+                                "required": true
+                            },
+                            {
+                                "name": "exclusive",
+                                "description": "whether or not to make the group exclusive",
+                                "required": true,
+                                "type": 5
+                            }
+                        ]
+                    },
+                    {
+                        "type": 1,
+                        "name": "rename",
+                        "description": "Rename a group",
+                        "options": [
+                            {
+                                "autocomplete": true,
+                                "type": 3,
+                                "name": "group",
+                                "description": "which group to configure",
+                                "required": true
+                            },
+                            {
+                                "type": 3,
+                                "name": "newname",
+                                "description": "the new name for the group",
+                                "required": true
+                            }
+                        ]
                     }
                 ]
             },
@@ -116,9 +194,10 @@
                         "type": 5
                     },
                     {
+                        "autocomplete": true,
                         "type": 3,
                         "name": "group",
-                        "description": "the role group to disable",
+                        "description": "the role group to disable, ignore to disable globally.",
                         "required": false
                     }
                 ]
