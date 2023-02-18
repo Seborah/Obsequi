@@ -205,6 +205,6 @@
         ],
         "name": "admin",
         "description": "Administrative Commands",
-        "default_member_permissions": "8"
+        "default_member_permissions": "8192"
     }
 ]

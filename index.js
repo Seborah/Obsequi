@@ -19,7 +19,7 @@ client.once('ready', () => {
 
 client.on('interactionCreate', async (interaction) => {
     if (!interaction.inGuild()) return
-    
+    console.log(interaction.type)
     switch (interaction.type) { 
         case 'APPLICATION_COMMAND':
             await slashCommands(interaction)
