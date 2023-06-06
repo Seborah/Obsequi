@@ -29,7 +29,6 @@ client.on("interactionCreate", async (interaction) => {
 					await buttonInteractions(interaction)
 					break
 			}
-
 			break
 		case "APPLICATION_COMMAND_AUTOCOMPLETE":
 			await autoComplete(interaction)
