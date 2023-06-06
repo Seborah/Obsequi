@@ -13,11 +13,10 @@ var RoleGroup = require('../../schema/RoleGroup.js')
  * @param {String} subCommand
  */
 async function command(interaction, subCommandGroup, subCommand) {
-    await interaction.reply({ content: 'Working on it...' })
     var group = interaction.options.getString('group')
-
+    await interaction.reply({ ephemeral: true, content: 'Working on it...' })
     if (!(await Server.exists({ serverID: interaction.guild.id, selfAssign: true }))) {
-        await interaction.editReply({ ephemeral: true, content: "Sorry, but you can't get roles right now." })
+        await interaction.editReply({ content: "Sorry, but you can't get roles right now." })
         return
     }
 
@@ -49,6 +48,7 @@ async function command(interaction, subCommandGroup, subCommand) {
                 components.push(row)
                 row = new MessageActionRow()
             }
+
             var button = new MessageButton()
             button.setCustomId('roles_' + discordRole.id)
             button.setLabel(discordRole.name)
@@ -68,7 +68,7 @@ async function command(interaction, subCommandGroup, subCommand) {
                 }
                 var discordRole = await interaction.guild.roles.fetch(roles[i].roleID)
                 if (!discordRole) {
-                    await Role.deleteOne({ serverID: interaction.guild.id, roleID:roles[i].roleID  })
+                    await Role.deleteOne({ serverID: interaction.guild.id, roleID: roles[i].roleID })
                     continue
                 }
                 if (i % 5 == 0 && i != 0) {
@@ -77,7 +77,7 @@ async function command(interaction, subCommandGroup, subCommand) {
                 }
 
                 //$ this is the line that is different between the two
-                
+
                 var button = new MessageButton()
                 button.setCustomId('roles_' + discordRole.id)
                 button.setLabel(discordRole.name)

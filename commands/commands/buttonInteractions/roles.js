@@ -20,19 +20,10 @@ async function command(interaction) {
     var memberRoles = interaction.member.roles.cache
     var mongoRoles = await RoleGroup.findOne({ serverID: interaction.guild.id, roleIDs: roleID, assignable: true })
     if (memberRoles.has(roleID)) {
-        if (!mongoRoles || !mongoRoles.exclusive) {
-            try {
-                await interaction.member.roles.remove(roleID)
-                await interaction.editReply({ content: 'You already have this role. It has been removed now.' })
-            } catch (e) {
-                await interaction.editReply({ content: 'You already have this role. I failed to remove it.' })
-            }
-            return
-        } else {
-            await interaction.editReply({ content: 'You already have this role.' })
-            return
-        }
+        await interaction.editReply({ content: 'You already have this role.' })
+        return
     }
+
     if (mongoRoles) {
         if (mongoRoles.exclusive) {
             var removeRoles = []
@@ -45,14 +36,13 @@ async function command(interaction) {
         }
 
         try {
-            await interaction.member.roles.add(roleID)
+            await interaction.member.roles.add(interaction.customId)
             await interaction.editReply({ ephemeral: true, content: 'Added: ' + interaction.guild.roles.cache.get(roleID).name })
         } catch (e) {
-            console.error(e)
             interaction.editReply({ content: "I don't have permission to add this role." })
         }
     } else if (await Role.exists({ serverID: interaction.guild.id, assignable: true })) {
-        var discordRole = await interaction.guild.roles.fetch(roleID)
+        var discordRole = await interaction.guild.roles.fetch(interaction.customId)
 
         try {
             if (interaction.member.roles.cache.has(discordRole.id)) {
@@ -63,7 +53,6 @@ async function command(interaction) {
                 await interaction.editReply({ ephemeral: true, content: 'Added: ' + discordRole.name })
             }
         } catch (e) {
-            console.error(e)
             interaction.editReply({ ephemeral: true, content: "I don't have permission to add this role." })
             return
         }
