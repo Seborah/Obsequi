@@ -68,7 +68,7 @@ async function command(interaction, subCommandGroup, subCommand) {
                 }
                 var discordRole = await interaction.guild.roles.fetch(roles[i].roleID)
                 if (!discordRole) {
-                    await Role.deleteOne({ serverID: interaction.guild.id, roleID:roles[i].roleID  })
+                    await Role.deleteOne({ serverID: interaction.guild.id, roleID: roles[i].roleID })
                     continue
                 }
                 if (i % 5 == 0 && i != 0) {
@@ -77,7 +77,7 @@ async function command(interaction, subCommandGroup, subCommand) {
                 }
 
                 //$ this is the line that is different between the two
-                
+
                 var button = new MessageButton()
                 button.setCustomId('roles_' + discordRole.id)
                 button.setLabel(discordRole.name)
